@@ -1,0 +1,9 @@
+./node_modules
+*.log
+*.json
+*.lock
+*.md
+LICENSE
+./dist
+./coverage
+dist/
