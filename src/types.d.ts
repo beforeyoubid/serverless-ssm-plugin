@@ -20,6 +20,11 @@ export type ServerlessWithError = Serverless & {
       environment: Record<string, unknown>;
     };
   };
+  providers: {
+    aws: {
+      getCredentials();
+    };
+  };
 };
 
 declare global {

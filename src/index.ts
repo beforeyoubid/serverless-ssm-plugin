@@ -51,7 +51,10 @@ export default class ServerlessSsmPlugin implements Plugin {
   }
 
   async getParameterFromSsm(name: string): Promise<Maybe<string>> {
-    const client = new SecretsManager({ region: this.region });
+    const client = new SecretsManager({
+      region: this.region,
+      ...this.serverless.providers.aws.getCredentials(),
+    });
     const data = await client.getSecretValue({ SecretId: name }).promise();
     return data.SecretString;
   }
