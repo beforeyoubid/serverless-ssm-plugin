@@ -29,6 +29,11 @@ describe('ssm plugin', () => {
             API_ENV_SECRET_NAME: 'some-secrets',
           },
         },
+        providers: {
+          aws: {
+            getCredentials: () => ({}),
+          },
+        },
         classes: {
           Error,
         },
