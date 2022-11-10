@@ -1,6 +1,6 @@
 {
   "name": "serverless-ssm-plugin",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Serverless plugin to add secrets manager secrets to function bundles",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
