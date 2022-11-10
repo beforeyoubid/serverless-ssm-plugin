@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { SecretsManager } from 'aws-sdk';
 import Plugin from 'serverless/classes/Plugin';
+import { log } from '@serverless/utils/log';
 
 import { Options, ServerlessWithError } from './types';
 
@@ -60,7 +61,7 @@ export default class ServerlessSsmPlugin implements Plugin {
   }
 
   async cleanupPackageSecrets(): Promise<void> {
-    this.serverless.cli.log(`Cleaning up ${this.secretsFile}`);
+    log(`Cleaning up ${this.secretsFile}`);
     if (fs.existsSync(this.secretsFile)) {
       await fs.promises.unlink(this.secretsFile);
     }
@@ -68,10 +69,10 @@ export default class ServerlessSsmPlugin implements Plugin {
 
   async packageSecrets(): Promise<void> {
     if (this.serverless.service.provider.stage === 'local') {
-      this.serverless.cli.log('Skipping secret packaging due to stage = local');
+      log('Skipping secret packaging due to stage = local');
       return;
     }
-    this.serverless.cli.log('Serverless Secrets beginning packaging process');
+    log('Serverless Secrets beginning packaging process');
     this.serverless.service.package.include = this.serverless.service.package.include ?? [];
     await this.writeEnvironmentSecretToFile();
     this.serverless.service.package.include.push(this.secretsFile);
