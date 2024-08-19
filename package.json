@@ -1,13 +1,13 @@
 {
   "name": "serverless-ssm-plugin",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Serverless plugin to add secrets manager secrets to function bundles",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "author": "Alice <alice@beforeyoubuy.com.au>",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "2.1251.0"
+    "@aws-sdk/client-secrets-manager": "^3.632.0"
   },
   "repository": {
     "type": "git",
