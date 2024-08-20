@@ -1,4 +1,4 @@
-import { SecretsManager } from 'aws-sdk';
+import { sendCommand, SecretsManagerClient, GetSecretValueCommand } from '@aws-sdk/client-secrets-manager';
 import ServerlessSsmPlugin from '..';
 import { ServerlessWithError } from '../types';
 import { existsSync, promises } from 'fs';
@@ -12,8 +12,9 @@ jest.mock('fs', () => ({
     writeFile: jest.fn().mockResolvedValue(undefined),
   },
 }));
-jest.mock('aws-sdk', () => ({
-  SecretsManager: jest.fn(),
+jest.mock('@aws-sdk/client-secrets-manager', () => ({
+  ...jest.requireActual('@aws-sdk/client-secrets-manager'),
+  SecretsManagerClient: jest.fn(),
 }));
 
 jest.mock('@serverless/utils/log', () => ({
@@ -51,13 +52,11 @@ describe('ssm plugin', () => {
   describe('getParameterFromSsm', () => {
     it('should try to load from ssm', async () => {
       const returnValue = Math.random().toString();
-      const getSecretValue = jest.fn().mockReturnValue({
-        promise: () => Promise.resolve({ SecretString: returnValue }),
-      });
-      (SecretsManager as unknown as jest.Mock).mockReturnValue({ getSecretValue });
+      const send = jest.fn().mockResolvedValue({ SecretString: returnValue });
+      (SecretsManagerClient as unknown as jest.Mock).mockReturnValue({ send });
       const name = Math.random().toString();
       const parameter = await plugin.getParameterFromSsm(name);
-      expect(getSecretValue).toBeCalledWith({ SecretId: name });
+      expect(send).toBeCalled();
       expect(parameter).toBe(returnValue);
     });
   });
@@ -91,12 +90,10 @@ describe('ssm plugin', () => {
       const providerSecretTitle = Math.random().toString();
       plugin.serverless.service.provider.environment = { API_ENV_SECRET_NAME: providerSecretTitle };
 
-      const getSecretValue = jest.fn().mockReturnValue({
-        promise: () => Promise.resolve({ SecretString: undefined }),
-      });
-      (SecretsManager as unknown as jest.Mock).mockReturnValue({ getSecretValue });
+      const send = jest.fn().mockResolvedValue({ SecretString: undefined });
+      (SecretsManagerClient as unknown as jest.Mock).mockReturnValue({ send });
       await expect(plugin.writeEnvironmentSecretToFile()).rejects.toThrow(Error);
-      expect(getSecretValue).toBeCalledWith({ SecretId: providerSecretTitle });
+      expect(send).toBeCalled();
       expect(promises.writeFile).toHaveBeenCalledTimes(0);
     });
     it('should get parameter by calling getParameterFromSsm and write to disk', async () => {
@@ -105,12 +102,10 @@ describe('ssm plugin', () => {
       (promises.writeFile as jest.Mock).mockReturnValue(undefined);
 
       const returnValue = Math.random().toString();
-      const getSecretValue = jest.fn().mockReturnValue({
-        promise: () => Promise.resolve({ SecretString: returnValue }),
-      });
-      (SecretsManager as unknown as jest.Mock).mockReturnValue({ getSecretValue });
+      const send = jest.fn().mockResolvedValue({ SecretString: returnValue });
+      (SecretsManagerClient as unknown as jest.Mock).mockReturnValue({ send });
       await plugin.writeEnvironmentSecretToFile();
-      expect(getSecretValue).toBeCalledWith({ SecretId: providerSecretTitle });
+      expect(send).toBeCalled();
       expect(promises.writeFile).toHaveBeenCalledWith(
         plugin.secretsFile,
         JSON.stringify({ [providerSecretTitle]: returnValue })
@@ -127,12 +122,12 @@ describe('ssm plugin', () => {
       const providerSecretTitle = Math.random().toString();
       plugin.serverless.service.provider.environment = { API_ENV_SECRET_NAME: providerSecretTitle };
 
-      const getSecretValue = jest.fn().mockReturnValue({
+      const send = jest.fn().mockReturnValue({
         promise: () => Promise.resolve({ SecretString: undefined }),
       });
-      (SecretsManager as unknown as jest.Mock).mockReturnValue({ getSecretValue });
+      (SecretsManagerClient as unknown as jest.Mock).mockReturnValue({ send });
       await expect(plugin.packageSecrets()).rejects.toThrow(Error);
-      expect(getSecretValue).toBeCalledWith({ SecretId: providerSecretTitle });
+      expect(send).toBeCalled();
       expect(promises.writeFile).toHaveBeenCalledTimes(0);
       expect(log as jest.Mock).toHaveBeenCalled();
     });
@@ -142,13 +137,11 @@ describe('ssm plugin', () => {
       (promises.writeFile as jest.Mock).mockReturnValue(undefined);
 
       const returnValue = Math.random().toString();
-      const getSecretValue = jest.fn().mockReturnValue({
-        promise: () => Promise.resolve({ SecretString: returnValue }),
-      });
-      (SecretsManager as unknown as jest.Mock).mockReturnValue({ getSecretValue });
+      const send = jest.fn().mockResolvedValue({ SecretString: returnValue });
+      (SecretsManagerClient as unknown as jest.Mock).mockReturnValue({ send });
       await plugin.packageSecrets();
       expect(log as jest.Mock).toHaveBeenCalled();
-      expect(getSecretValue).toBeCalledWith({ SecretId: providerSecretTitle });
+      expect(send).toBeCalled();
       expect(promises.writeFile).toHaveBeenCalledWith(
         plugin.secretsFile,
         JSON.stringify({ [providerSecretTitle]: returnValue })

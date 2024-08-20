@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { SecretsManager } from 'aws-sdk';
+import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
 import Plugin from 'serverless/classes/Plugin';
 import { log } from '@serverless/utils/log';
 
@@ -52,11 +52,11 @@ export default class ServerlessSsmPlugin implements Plugin {
   }
 
   async getParameterFromSsm(name: string): Promise<Maybe<string>> {
-    const client = new SecretsManager({
+    const client = new SecretsManagerClient({
       region: this.region,
       ...this.serverless.providers.aws.getCredentials(),
     });
-    const data = await client.getSecretValue({ SecretId: name }).promise();
+    const data = await client.send(new GetSecretValueCommand({ SecretId: name }));
     return data.SecretString;
   }
 
