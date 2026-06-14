@@ -17,6 +17,7 @@
     "test": "jest --coverage",
     "lint": "eslint '**/*.{ts,tsx,js,jsx}' --quiet",
     "ts": "tsc --noEmit",
+    "prepare": "npm run build",
     "build-and-publish": "npm run build && npm publish --access public",
     "build": "npm run build:types && npm run build:js",
     "build:types": "tsc --emitDeclarationOnly",
