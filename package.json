@@ -1,5 +1,5 @@
 {
-  "name": "serverless-ssm-plugin",
+  "name": "@beforeyoubid/serverless-ssm-plugin",
   "version": "1.2.1",
   "description": "Serverless plugin to add secrets manager secrets to function bundles",
   "main": "dist/index.js",
