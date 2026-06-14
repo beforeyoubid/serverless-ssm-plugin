@@ -68,8 +68,8 @@ export default class ServerlessSsmPlugin implements Plugin {
   }
 
   async packageSecrets(): Promise<void> {
-    if (this.serverless.service.provider.stage === 'local') {
-      log('Skipping secret packaging due to stage = local');
+    if (['local', 'preview'].includes(this.serverless.service.provider.stage)) {
+      log(`Skipping secret packaging due to stage = ${this.serverless.service.provider.stage}`);
       return;
     }
     log('Serverless Secrets beginning packaging process');
